@@ -1,7 +1,7 @@
 // ---- CONFIGURATION ----
 // Paste your Google Apps Script Web App URL here after deploying (see README.md).
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzAwM2D1NoPPRTUul_Vu5nHebHDDp-LZOBXna7lkvxneQLXuwCaadJN9p8zDgrETYQLKA/exec'
+  API_URL: 'https://script.google.com/macros/s/AKfycbyIC2p-Lgnl3Aa7cLsW-EoXrXedSQJwr38W7RitY-9T-FKb00zPAlDXG1vtm1ahsgUkYg/exec'
 };
 
 const CATEGORIES = ['Personal', 'Jenny Flores Art', 'After.Seven'];
