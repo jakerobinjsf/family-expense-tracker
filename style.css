@@ -1,0 +1,295 @@
+:root {
+  --green: #189a68;
+  --green-dark: #0f6e49;
+  --green-soft: #e8f7f0;
+  --bg: #eef1f3;
+  --card-bg: #ffffff;
+  --input-bg: #f3f5f6;
+  --text: #1c1c1e;
+  --muted: #6b7076;
+  --border: #e4e6e8;
+  --danger: #d64545;
+  --danger-soft: #fdecec;
+  font-size: 17px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding-bottom: 3rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-header {
+  background: var(--green);
+  color: #fff;
+  padding: 1.1rem 1.25rem 1rem;
+  padding-top: calc(1.1rem + env(safe-area-inset-top, 0px));
+  box-shadow: 0 2px 10px rgba(15, 110, 73, 0.25);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+main {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 1.1rem 1rem;
+}
+
+#expense-form {
+  background: var(--card-bg);
+  border-radius: 22px;
+  padding: 1.4rem 1.3rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(20, 30, 40, 0.07);
+}
+
+.field {
+  margin-bottom: 1.3rem;
+}
+
+.field:last-of-type {
+  margin-bottom: 1.5rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 1.05rem 1.1rem;
+  font-size: 1.3rem;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: var(--input-bg);
+  color: var(--text);
+  min-height: 66px;
+  line-height: 1.3;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.field input::placeholder {
+  color: #9aa0a6;
+}
+
+.field select {
+  padding-right: 3rem;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7076'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.6rem;
+  cursor: pointer;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--green);
+  background: #fff;
+  box-shadow: 0 0 0 4px var(--green-soft);
+}
+
+.save-btn {
+  width: 100%;
+  min-height: 68px;
+  background: var(--green);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border: none;
+  border-radius: 16px;
+  margin-top: 0.2rem;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(24, 154, 104, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.save-btn:active {
+  background: var(--green-dark);
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(24, 154, 104, 0.3);
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.toast {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  min-height: 1.4rem;
+  margin: 0.9rem 0 0.1rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.error { color: var(--danger); }
+
+#recent-section {
+  margin-top: 1.6rem;
+}
+
+#recent-section h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0 0 0.8rem;
+  padding-left: 0.2rem;
+}
+
+#recent-section .subtitle {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.date-group {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.9rem;
+  box-shadow: 0 4px 16px rgba(20, 30, 40, 0.06);
+}
+
+.date-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.date-group-header .date-label {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.date-group-header .date-total {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--green-dark);
+}
+
+.expense-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 0.15rem;
+  border-top: 1px solid var(--border);
+  min-height: 56px;
+  cursor: pointer;
+}
+
+.expense-row:active {
+  background: var(--input-bg);
+}
+
+.expense-row:first-of-type {
+  border-top: none;
+}
+
+.expense-row .desc {
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+.expense-row .desc .category-tag {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.expense-row .amt {
+  font-weight: 800;
+  font-size: 1.05rem;
+  white-space: nowrap;
+  margin-left: 0.6rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.95rem;
+  padding: 1.8rem 0;
+}
+
+.edit-panel {
+  margin-top: 0.6rem;
+  padding: 1.1rem 1rem;
+  background: var(--green-soft);
+  border-radius: 16px;
+}
+
+.edit-panel .field {
+  margin-bottom: 0.85rem;
+}
+
+.edit-panel .field label {
+  color: var(--green-dark);
+}
+
+.edit-panel .field input,
+.edit-panel .field select {
+  background: #fff;
+  min-height: 58px;
+  font-size: 1.15rem;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.edit-actions button {
+  flex: 1;
+  min-height: 56px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn-save-edit {
+  background: var(--green);
+  color: #fff;
+}
+
+.btn-delete {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.btn-cancel {
+  background: #fff;
+  color: var(--text);
+  border: 2px solid var(--border) !important;
+}
