@@ -137,6 +137,21 @@ form.addEventListener('submit', async (e) => {
 async function saveExpense(expense, force) {
   duplicateWarning.hidden = true;
 
+  // Fast on-device check. The Apps Script repeats this check against the full
+  // Sheet, protecting against simultaneous entries from another phone.
+  if (!force) {
+    const localDuplicate = expensesCache.find(item =>
+      item.date === expense.date && Number(item.amount) === Number(expense.amount)
+    );
+    if (localDuplicate) {
+      pendingExpense = expense;
+      duplicateMessage.textContent = `${localDuplicate.description} for ${formatPeso(localDuplicate.amount)} is already recorded on ${formatDateLabel(localDuplicate.date)}.`;
+      duplicateWarning.hidden = false;
+      duplicateWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+
   saveBtn.disabled = true;
   saveBtn.textContent = 'SAVING…';
 

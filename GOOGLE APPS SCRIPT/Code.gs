@@ -6,6 +6,7 @@
 
 const SHEET_NAME = 'Expenses';
 const SETTINGS_SHEET_NAME = 'Settings';
+const API_VERSION = 4;
 const CATEGORIES = ['Personal', 'Jenny Flores Art', 'After.Seven'];
 const PERSONAL_SUBCATEGORIES = ['Travel', 'Home Staff Salary', 'Utilities', 'Eat Out / Take Out', 'Grocery', 'Giving', 'Dogs', 'Transportation / Parking / Lalamove', 'Home Misc. Essentials', 'Subscription', 'Insurance', 'Pat / Jen Shopping / Home Aesthetics', 'Health & Hygiene Expenses', 'Others'];
 const HEADERS = ['ID', 'Timestamp', 'Date', 'Description', 'Amount', 'Category', 'Subcategory'];
@@ -16,11 +17,10 @@ function getSheet_() {
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
   }
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(HEADERS);
-  } else if (sheet.getLastColumn() < HEADERS.length) {
-    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
-  }
+  // Always repair the header row. This safely adds the Subcategory column to
+  // existing sheets and does not modify any existing expense rows.
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  sheet.setFrozenRows(1);
   return sheet;
 }
 
@@ -74,7 +74,7 @@ function doPost(e) {
 function listExpenses_() {
   const sheet = getSheet_();
   const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { expenses: [], budget: getBudgetStatus_([]) };
+  if (lastRow < 2) return { expenses: [], budget: getBudgetStatus_([]), apiVersion: API_VERSION };
 
   const numRows = lastRow - 1;
   const values = sheet.getRange(2, 1, numRows, HEADERS.length).getValues();
@@ -105,7 +105,7 @@ function listExpenses_() {
     return new Date(b.timestamp) - new Date(a.timestamp);
   });
 
-  return { expenses: expenses, budget: getBudgetStatus_(values) };
+  return { expenses: expenses, budget: getBudgetStatus_(values), apiVersion: API_VERSION };
 }
 
 function addExpense_(params) {

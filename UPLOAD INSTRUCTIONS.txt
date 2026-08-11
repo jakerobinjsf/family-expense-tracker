@@ -21,5 +21,9 @@ GOOGLE APPS SCRIPT
 6. Go to Deploy > Manage deployments > pencil icon.
 7. Select New version and click Deploy.
 
+IMPORTANT: Saving Code.gs is not enough. The budget, full-sheet duplicate check,
+and automatic Subcategory column only become active after deploying a NEW VERSION.
+Use Manage deployments so the existing /exec URL remains unchanged.
+
 After publishing, close and reopen the phone app. If it still shows the old
 version, refresh the GitHub Pages website once in Safari or Chrome.
