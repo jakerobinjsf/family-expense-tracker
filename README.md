@@ -65,7 +65,7 @@ All source files are in this folder. Key ones:
 
 After replacing `Code.gs`, create a **new deployment version** using the step above. Then upload the updated `index.html`, `app.js`, `style.css`, and `service-worker.js` to GitHub. The existing Sheet rows and web-app URL remain valid. The next API request adds the new `Subcategory` column and `Settings` tab automatically.
 
-The budget card tracks Personal expenses in the current calendar month. At 80% it changes to amber; at 100% it changes to red and shows the amount over budget. Duplicate detection compares the exact amount and date against all rows and asks whether to save anyway.
+The budget card tracks only `Personal` expenses with the `Eat Out / Take Out` subcategory in the current calendar month. At 80% it changes to amber; at 100% it changes to red and shows the amount over budget. Duplicate detection compares the exact amount and date against all rows and asks whether to save anyway.
 
 ## 6. Connect the frontend to the backend
 

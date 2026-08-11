@@ -29,8 +29,9 @@ function getSettingsSheet_() {
   let sheet = ss.getSheetByName(SETTINGS_SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SETTINGS_SHEET_NAME);
-    sheet.getRange(1, 1, 2, 2).setValues([['Setting', 'Value'], ['Monthly Personal Budget', 0]]);
+    sheet.getRange(1, 1, 2, 2).setValues([['Setting', 'Value'], ['Monthly Eat Out Budget', 0]]);
   }
+  sheet.getRange(2, 1).setValue('Monthly Eat Out Budget');
   return sheet;
 }
 
@@ -194,7 +195,7 @@ function getBudgetStatus_(rows) {
   let spent = 0;
   rows.forEach(function(row) {
     const date = new Date(row[2]);
-    if (row[5] === 'Personal' && date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) spent += Number(row[4]) || 0;
+    if (row[5] === 'Personal' && row[6] === 'Eat Out / Take Out' && date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) spent += Number(row[4]) || 0;
   });
   return { limit: limit, spent: spent };
 }
