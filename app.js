@@ -200,6 +200,9 @@ async function loadExpenses() {
     expensesCache = data.expenses;
     renderBudget(data.budget || { limit: 0, spent: 0 });
     renderExpenses();
+    if (Number(data.apiVersion) < 4) {
+      showToast('Backend update required: Apps Script is still an older version.', true);
+    }
   } catch (err) {
     recentList.innerHTML = '';
     emptyState.textContent = 'Could not load expenses: ' + err.message;
@@ -237,7 +240,12 @@ document.getElementById('budget-save-btn').addEventListener('click', async () =>
     budgetEditor.hidden = true;
     showToast('Monthly budget saved.');
     await loadExpenses();
-  } catch (err) { showToast('Failed to save budget: ' + err.message, true); }
+  } catch (err) {
+    const message = /unknown action/i.test(err.message)
+      ? 'Apps Script is still an older deployment. Update the deployment URL/version.'
+      : 'Failed to save budget: ' + err.message;
+    showToast(message, true);
+  }
 });
 
 function renderExpenses() {
@@ -390,6 +398,8 @@ loadExpenses();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
+      .then(registration => registration.update())
+      .catch(() => {});
   });
 }

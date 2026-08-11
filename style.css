@@ -24,6 +24,13 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.app-version {
+  text-align: center;
+  color: var(--muted);
+  font-size: .72rem;
+  padding: .5rem 1rem calc(.5rem + env(safe-area-inset-bottom, 0px));
+}
+
 .app-header {
   background: var(--green);
   color: #fff;

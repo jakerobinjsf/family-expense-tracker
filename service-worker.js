@@ -1,4 +1,4 @@
-const CACHE_NAME = 'expense-tracker-v5';
+const CACHE_NAME = 'expense-tracker-v6';
 const APP_SHELL = [
   './',
   './index.html',
@@ -25,7 +25,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first for the Apps Script API, cache-first for the app shell.
+// Network-first keeps installed phones current while retaining offline shell access.
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -35,15 +35,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        })
-      );
-    })
+    fetch(event.request)
+      .then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
