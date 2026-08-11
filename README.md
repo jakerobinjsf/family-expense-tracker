@@ -43,7 +43,7 @@ All source files are in this folder. Key ones:
 ## 4. Google Sheets setup
 
 1. Go to [sheets.google.com](https://sheets.google.com) and create a new spreadsheet named **Family Expenses**.
-2. You do **not** need to manually add headers — the Apps Script will create a sheet tab named `Expenses` with headers automatically the first time it runs. (If you'd rather set it up yourself, create a tab named exactly `Expenses` with header row: `ID | Timestamp | Date | Description | Amount | Category`.)
+2. You do **not** need to manually add headers — the Apps Script creates or upgrades the `Expenses` tab automatically. The current header row is: `ID | Timestamp | Date | Description | Amount | Category | Subcategory`. It also creates a `Settings` tab for the shared monthly Personal budget.
 3. Note: an `ID` column (a hidden UUID) is included in addition to the columns you listed. It's required so the app can reliably edit/delete a specific row without ambiguity — it's not shown anywhere in the UI.
 
 ## 5. Google Apps Script deployment
@@ -60,6 +60,12 @@ All source files are in this folder. Key ones:
 8. Copy the **Web app URL** it gives you (ends in `/exec`). You'll need it in the next step.
 
 > If you later edit `Code.gs`, you must click **Deploy → Manage deployments → Edit (pencil) → New version → Deploy** for changes to go live — saving alone isn't enough.
+
+### Updating an existing installation
+
+After replacing `Code.gs`, create a **new deployment version** using the step above. Then upload the updated `index.html`, `app.js`, `style.css`, and `service-worker.js` to GitHub. The existing Sheet rows and web-app URL remain valid. The next API request adds the new `Subcategory` column and `Settings` tab automatically.
+
+The budget card tracks Personal expenses in the current calendar month. At 80% it changes to amber; at 100% it changes to red and shows the amount over budget. Duplicate detection compares the exact amount and date against all rows and asks whether to save anyway.
 
 ## 6. Connect the frontend to the backend
 

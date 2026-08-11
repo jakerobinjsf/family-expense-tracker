@@ -1,0 +1,25 @@
+FAMILY EXPENSE TRACKER UPDATE
+
+GITHUB
+1. Open your family-expense-tracker GitHub repository.
+2. Upload and replace these items from this folder:
+   - index.html
+   - app.js
+   - style.css
+   - manifest.json
+   - service-worker.js
+   - icons folder
+3. Do not upload the GOOGLE APPS SCRIPT folder as part of the website update.
+4. Commit the changes and wait approximately two minutes for GitHub Pages.
+
+GOOGLE APPS SCRIPT
+1. Open the Google Sheet.
+2. Go to Extensions > Apps Script.
+3. Open the GOOGLE APPS SCRIPT folder in this package.
+4. Copy all of Code.gs and replace the existing Apps Script code.
+5. Save.
+6. Go to Deploy > Manage deployments > pencil icon.
+7. Select New version and click Deploy.
+
+After publishing, close and reopen the phone app. If it still shows the old
+version, refresh the GitHub Pages website once in Safari or Chrome.

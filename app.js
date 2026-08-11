@@ -5,16 +5,26 @@ const CONFIG = {
 };
 
 const CATEGORIES = ['Personal', 'Jenny Flores Art', 'After.Seven'];
+const PERSONAL_SUBCATEGORIES = ['Travel', 'Home Staff Salary', 'Utilities', 'Eat Out / Take Out', 'Grocery', 'Giving', 'Dogs', 'Transportation / Parking / Lalamove', 'Home Misc. Essentials', 'Subscription', 'Insurance', 'Pat / Jen Shopping / Home Aesthetics', 'Health & Hygiene Expenses', 'Others'];
 
 const form = document.getElementById('expense-form');
 const dateInput = document.getElementById('date');
 const descriptionInput = document.getElementById('description');
 const amountInput = document.getElementById('amount');
 const categorySelect = document.getElementById('category');
+const subcategoryField = document.getElementById('subcategory-field');
+const subcategorySelect = document.getElementById('subcategory');
 const saveBtn = document.getElementById('save-btn');
 const toast = document.getElementById('toast');
 const recentList = document.getElementById('recent-list');
 const emptyState = document.getElementById('empty-state');
+const duplicateWarning = document.getElementById('duplicate-warning');
+const duplicateMessage = document.getElementById('duplicate-message');
+const saveAnywayBtn = document.getElementById('save-anyway-btn');
+const duplicateCancelBtn = document.getElementById('duplicate-cancel-btn');
+const budgetDisplay = document.getElementById('budget-display');
+const budgetEditor = document.getElementById('budget-editor');
+const budgetInput = document.getElementById('budget-input');
 
 function todayISO() {
   const d = new Date();
@@ -41,6 +51,15 @@ function showToast(message, isError) {
 }
 
 dateInput.value = todayISO();
+subcategorySelect.innerHTML = PERSONAL_SUBCATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+
+function syncSubcategoryField() {
+  const isPersonal = categorySelect.value === 'Personal';
+  subcategoryField.hidden = !isPersonal;
+  subcategorySelect.required = isPersonal;
+}
+categorySelect.addEventListener('change', syncSubcategoryField);
+syncSubcategoryField();
 
 // ---- API HELPERS ----
 
@@ -48,7 +67,7 @@ async function apiList() {
   const res = await fetch(`${CONFIG.API_URL}?action=list`);
   const data = await res.json();
   if (data.error) throw new Error(data.error);
-  return data.expenses;
+  return data;
 }
 
 async function apiAdd(expense) {
@@ -75,7 +94,17 @@ async function apiDelete(id) {
   return data;
 }
 
+async function apiSetBudget(amount) {
+  const body = new URLSearchParams({ action: 'setBudget', amount });
+  const res = await fetch(CONFIG.API_URL, { method: 'POST', body });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
 // ---- FORM SUBMIT ----
+
+let pendingExpense = null;
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -98,18 +127,35 @@ form.addEventListener('submit', async (e) => {
     date: dateInput.value,
     description,
     amount: Number(amount).toFixed(2),
-    category: categorySelect.value
+    category: categorySelect.value,
+    subcategory: categorySelect.value === 'Personal' ? subcategorySelect.value : ''
   };
+
+  await saveExpense(expense, false);
+});
+
+async function saveExpense(expense, force) {
+  duplicateWarning.hidden = true;
 
   saveBtn.disabled = true;
   saveBtn.textContent = 'SAVING…';
 
   try {
-    await apiAdd(expense);
+    const result = await apiAdd({ ...expense, force: String(force) });
+    if (result.duplicate) {
+      pendingExpense = expense;
+      duplicateMessage.textContent = `${result.expense.description} for ${formatPeso(result.expense.amount)} is already recorded on ${formatDateLabel(result.expense.date)}.`;
+      duplicateWarning.hidden = false;
+      duplicateWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     showToast('Expense recorded successfully.');
+    pendingExpense = null;
     descriptionInput.value = '';
     amountInput.value = '';
     categorySelect.value = 'Personal';
+    subcategorySelect.selectedIndex = 0;
+    syncSubcategoryField();
     descriptionInput.focus();
     await loadExpenses();
   } catch (err) {
@@ -118,6 +164,15 @@ form.addEventListener('submit', async (e) => {
     saveBtn.disabled = false;
     saveBtn.textContent = 'SAVE EXPENSE';
   }
+}
+
+saveAnywayBtn.addEventListener('click', () => {
+  if (pendingExpense) saveExpense(pendingExpense, true);
+});
+duplicateCancelBtn.addEventListener('click', () => {
+  duplicateWarning.hidden = true;
+  pendingExpense = null;
+  amountInput.focus();
 });
 
 // ---- RECENT EXPENSES RENDERING ----
@@ -126,7 +181,9 @@ let expensesCache = [];
 
 async function loadExpenses() {
   try {
-    expensesCache = await apiList();
+    const data = await apiList();
+    expensesCache = data.expenses;
+    renderBudget(data.budget || { limit: 0, spent: 0 });
     renderExpenses();
   } catch (err) {
     recentList.innerHTML = '';
@@ -134,6 +191,39 @@ async function loadExpenses() {
     recentList.appendChild(emptyState);
   }
 }
+
+function renderBudget(budget) {
+  const limit = Number(budget.limit) || 0;
+  const spent = Number(budget.spent) || 0;
+  budgetInput.value = limit || '';
+  document.getElementById('budget-edit-btn').textContent = limit ? 'Edit' : 'Set budget';
+  budgetDisplay.hidden = !limit;
+  if (!limit) return;
+  document.getElementById('budget-spent').textContent = formatPeso(spent);
+  document.getElementById('budget-limit').textContent = formatPeso(limit);
+  const percent = Math.round((spent / limit) * 100);
+  const bar = document.getElementById('budget-bar');
+  bar.style.width = `${Math.min(percent, 100)}%`;
+  const card = document.getElementById('budget-card');
+  card.classList.toggle('budget-warning', percent >= 80 && percent < 100);
+  card.classList.toggle('budget-over', percent >= 100);
+  document.getElementById('budget-message').textContent = percent >= 100 ? `Budget exceeded by ${formatPeso(spent - limit)}.` : percent >= 80 ? `${percent}% used — ${formatPeso(limit - spent)} remaining.` : `${formatPeso(limit - spent)} remaining.`;
+}
+
+document.getElementById('budget-edit-btn').addEventListener('click', () => {
+  budgetEditor.hidden = !budgetEditor.hidden;
+  if (!budgetEditor.hidden) budgetInput.focus();
+});
+document.getElementById('budget-save-btn').addEventListener('click', async () => {
+  const amount = Number(budgetInput.value);
+  if (!amount || amount < 0) return showToast('Enter a valid monthly budget.', true);
+  try {
+    await apiSetBudget(amount);
+    budgetEditor.hidden = true;
+    showToast('Monthly budget saved.');
+    await loadExpenses();
+  } catch (err) { showToast('Failed to save budget: ' + err.message, true); }
+});
 
 function renderExpenses() {
   recentList.innerHTML = '';
@@ -176,7 +266,7 @@ function buildExpenseRow(exp) {
   const row = document.createElement('div');
   row.className = 'expense-row';
   row.innerHTML = `
-    <span class="desc">${escapeHtml(exp.description)}<span class="category-tag">${escapeHtml(exp.category)}</span></span>
+    <span class="desc">${escapeHtml(exp.description)}<span class="category-tag">${escapeHtml(exp.subcategory || exp.category)}</span></span>
     <span class="amt">${formatPeso(exp.amount)}</span>
   `;
 
@@ -202,6 +292,7 @@ function buildEditPanel(exp) {
   const options = CATEGORIES.map(c =>
     `<option value="${c}" ${c === exp.category ? 'selected' : ''}>${c}</option>`
   ).join('');
+  const subcategoryOptions = PERSONAL_SUBCATEGORIES.map(c => `<option value="${c}" ${c === exp.subcategory ? 'selected' : ''}>${c}</option>`).join('');
 
   panel.innerHTML = `
     <div class="field">
@@ -220,12 +311,20 @@ function buildEditPanel(exp) {
       <label>Category</label>
       <select class="edit-category">${options}</select>
     </div>
+    <div class="field edit-subcategory-field" ${exp.category === 'Personal' ? '' : 'hidden'}>
+      <label>Personal Subcategory</label>
+      <select class="edit-subcategory">${subcategoryOptions}</select>
+    </div>
     <div class="edit-actions">
       <button type="button" class="btn-save-edit">Save</button>
       <button type="button" class="btn-delete">Delete</button>
       <button type="button" class="btn-cancel">Cancel</button>
     </div>
   `;
+
+  const editCategory = panel.querySelector('.edit-category');
+  const editSubcategoryField = panel.querySelector('.edit-subcategory-field');
+  editCategory.addEventListener('change', () => { editSubcategoryField.hidden = editCategory.value !== 'Personal'; });
 
   panel.querySelector('.btn-cancel').addEventListener('click', () => panel.remove());
 
@@ -234,7 +333,8 @@ function buildEditPanel(exp) {
       date: panel.querySelector('.edit-date').value,
       description: panel.querySelector('.edit-description').value.trim(),
       amount: Number(panel.querySelector('.edit-amount').value).toFixed(2),
-      category: panel.querySelector('.edit-category').value
+      category: editCategory.value,
+      subcategory: editCategory.value === 'Personal' ? panel.querySelector('.edit-subcategory').value : ''
     };
     if (!updated.description || !updated.amount || Number(updated.amount) <= 0) {
       showToast('Please enter a valid description and amount.', true);

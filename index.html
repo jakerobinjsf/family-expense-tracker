@@ -20,6 +20,22 @@
 </header>
 
 <main>
+  <section id="budget-card" class="budget-card" aria-labelledby="budget-title">
+    <div class="budget-heading">
+      <div><p class="eyebrow">THIS MONTH</p><h2 id="budget-title">Personal Budget</h2></div>
+      <button type="button" id="budget-edit-btn" class="text-btn">Set budget</button>
+    </div>
+    <div id="budget-display" class="budget-display" hidden>
+      <div class="budget-numbers"><strong id="budget-spent">₱0</strong><span>of <span id="budget-limit">₱0</span></span></div>
+      <div class="budget-track" aria-hidden="true"><span id="budget-bar"></span></div>
+      <p id="budget-message" class="budget-message"></p>
+    </div>
+    <div id="budget-editor" class="budget-editor" hidden>
+      <label for="budget-input">Monthly limit (PHP)</label>
+      <div class="budget-editor-row"><input id="budget-input" type="number" inputmode="decimal" min="0" step="100" placeholder="e.g. 50000"><button type="button" id="budget-save-btn">Save</button></div>
+    </div>
+  </section>
+
   <form id="expense-form" autocomplete="off">
     <div class="field">
       <label for="date">Date</label>
@@ -43,6 +59,16 @@
         <option value="Jenny Flores Art">Jenny Flores Art</option>
         <option value="After.Seven">After.Seven</option>
       </select>
+    </div>
+
+    <div class="field" id="subcategory-field">
+      <label for="subcategory">Personal Subcategory</label>
+      <select id="subcategory" name="subcategory" required></select>
+    </div>
+
+    <div id="duplicate-warning" class="duplicate-warning" role="alert" hidden>
+      <strong>Possible double entry</strong><p id="duplicate-message"></p>
+      <div class="duplicate-actions"><button type="button" id="save-anyway-btn">Save anyway</button><button type="button" id="duplicate-cancel-btn">Review entry</button></div>
     </div>
 
     <button type="submit" id="save-btn" class="save-btn">SAVE EXPENSE</button>
